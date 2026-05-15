@@ -1,6 +1,6 @@
 # 🧠 PropIntel
 
-<img width="1864" height="989" alt="image" src="https://github.com/user-attachments/assets/9589bad9-e0a9-42eb-ab22-aa63d58ce699" />
+<img width="1851" height="993" alt="propintel-en-1" src="https://github.com/user-attachments/assets/37c41970-82d0-4db7-b3d7-9e84a3c33cbc" />
 
 PropIntel is a production-style **real estate lead intelligence platform** that ingests raw lead datasets, enriches them from external sources, verifies contact quality, and ranks lead readiness for outreach.
 
@@ -44,10 +44,13 @@ Ongoing work is focused on deployment and post-MVP extensions (integrations, add
 
 ## Dashboard Screenshots
 
-<img width="1862" height="996" alt="image" src="https://github.com/user-attachments/assets/57d07725-89fd-4b2d-b47e-81fc8bb282d4" />
-<img width="1860" height="989" alt="image" src="https://github.com/user-attachments/assets/c888b9cb-e15a-4d3b-b418-1e802d2f8616" />
-<img width="1851" height="991" alt="image" src="https://github.com/user-attachments/assets/89957982-cc6d-4f1b-b59a-aecb39e32deb" />
-<img width="1867" height="986" alt="image" src="https://github.com/user-attachments/assets/a78a199b-60eb-4f88-86c6-5839dd5e6d45" />
+<img width="1852" height="991" alt="propintel-en-2" src="https://github.com/user-attachments/assets/f8ec4428-ee4d-485b-ac75-281636425f18" />
+
+<img width="1863" height="988" alt="propintel-en-3" src="https://github.com/user-attachments/assets/85778fac-2a70-4717-9765-c064d4852caf" />
+
+<img width="1865" height="993" alt="propintel-en-4" src="https://github.com/user-attachments/assets/44c235c2-b577-4441-808e-5bf0c2e675e2" />
+
+<img width="1860" height="993" alt="propintel-en-5" src="https://github.com/user-attachments/assets/b2197a8b-a4d0-46f7-89ca-d35804a4d61b" />
 
 ---
 
