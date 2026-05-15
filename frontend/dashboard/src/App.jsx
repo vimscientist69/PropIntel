@@ -3,6 +3,7 @@ import { Analytics } from "./components/Analytics";
 import { AppShell } from "./components/AppShell";
 import { ControlPanel } from "./components/ControlPanel";
 import { DataExplorer } from "./components/DataExplorer";
+import { EngineSettings } from "./components/EngineSettings";
 import { JobHistory } from "./components/JobHistory";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
@@ -455,116 +456,20 @@ export function App() {
           onExport={openExplorerExport}
         />
       ) : (
-        <div className="legacy-tab">
-                {activeTab === "settings" && (
-          <section className="panel">
-            <div className="panel-head">
-              <div>
-                <h2>Engine Settings</h2>
-                <p>Manage active enrichment/scoring profiles without editing YAML directly.</p>
-              </div>
-            </div>
-            <div className="filters">
-              <div className="field compact settings-name-field">
-                <label htmlFor="settingsName">Profile name</label>
-                <input
-                  id="settingsName"
-                  value={settingsName}
-                  onChange={(e) => setSettingsName(e.target.value)}
-                />
-                <div className="settings-name-actions">
-                  <button type="button" onClick={validateSettings}>Validate</button>
-                  <button type="button" onClick={saveSettings}>Save + Activate</button>
-                </div>
-              </div>
-            </div>
-            <textarea
-              className="settings-editor"
-              value={settingsPayloadText}
-              onChange={(e) => setSettingsPayloadText(e.target.value)}
-              rows={14}
-            />
-            {String(settingsPayloadText || "").trim() === "{}" && (
-              <p className="muted">
-                Minimal template: {"{"}"runtime":{"{"}"worker_concurrency":6,"providers":{"{"}"google_maps":{"{"}"requests_per_second":2.0,"max_concurrent":2{"}"},"serper":{"{"}"requests_per_second":1.5,"max_concurrent":2{"}"}{"}"}{"}"}{"}"}
-              </p>
-            )}
-            <p className="muted">{settingsStatus}</p>
-            <details className="rejected" open>
-              <summary>Profiles</summary>
-              <div className="table-wrap">
-                <table className="settings-profiles-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Active</th>
-                      <th>Updated</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {settingsProfiles.length === 0 && (
-                      <tr>
-                        <td colSpan={4} className="empty-row">
-                          No profiles saved yet.
-                        </td>
-                      </tr>
-                    )}
-                    {settingsProfiles.map((profile) => (
-                      <tr key={profile.name}>
-                        <td className="mono" data-label="Name">{profile.name}</td>
-                        <td data-label="Active">
-                          <span className={`pill ${profile.is_active ? "pill-completed" : ""}`}>
-                            {profile.is_active ? "active" : "inactive"}
-                          </span>
-                        </td>
-                        <td data-label="Updated">{profile.updated_at || "-"}</td>
-                        <td data-label="Action" className="profile-actions">
-                          <button
-                            type="button"
-                            className="ghost"
-                            disabled={profile.is_active}
-                            onClick={() => activateProfile(profile.name)}
-                          >
-                            Activate
-                          </button>
-                          <button
-                            type="button"
-                            className="ghost danger"
-                            onClick={() => setDeleteConfirmName(profile.name)}
-                            style={{ marginLeft: "8px" }}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </details>
-            {deleteConfirmName && (
-              <div className="modal-overlay" role="dialog" aria-modal="true">
-                <div className="modal-card">
-                  <h3>Delete settings profile?</h3>
-                  <p>
-                    This will permanently remove <span className="mono">{deleteConfirmName}</span>.
-                    This action cannot be undone.
-                  </p>
-                  <div className="actions-row">
-                    <button type="button" className="ghost" onClick={() => setDeleteConfirmName("")}>
-                      Cancel
-                    </button>
-                    <button type="button" className="danger" onClick={deleteProfile}>
-                      Delete profile
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </section>
-        )}
-        </div>
+        <EngineSettings
+          settingsName={settingsName}
+          setSettingsName={setSettingsName}
+          settingsPayloadText={settingsPayloadText}
+          setSettingsPayloadText={setSettingsPayloadText}
+          settingsStatus={settingsStatus}
+          settingsProfiles={settingsProfiles}
+          deleteConfirmName={deleteConfirmName}
+          setDeleteConfirmName={setDeleteConfirmName}
+          onValidate={validateSettings}
+          onSave={saveSettings}
+          onActivate={activateProfile}
+          onDelete={deleteProfile}
+        />
       )}
     </AppShell>
   );
