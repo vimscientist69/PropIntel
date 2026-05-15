@@ -201,7 +201,8 @@ export function App() {
 
   const startIdx = jobsTotal === 0 ? 0 : jobsOffset + 1;
   const endIdx = Math.min(jobsOffset + JOB_LIMIT, jobsTotal);
-  const recentJobs = jobs.slice(0, 6);
+  const jobsPageCount = jobsTotal === 0 ? 1 : Math.ceil(jobsTotal / JOB_LIMIT);
+  const jobsPage = jobsTotal === 0 ? 1 : Math.floor(jobsOffset / JOB_LIMIT) + 1;
   const activeJob = jobs.find((j) => j.job_id === activeJobId);
   const explorerJob = jobs.find((j) => j.job_id === explorerJobId);
   const statusTone = activeJob?.status || "idle";
@@ -367,7 +368,11 @@ export function App() {
           terminateActiveJob={terminateActiveJob}
           resumeActiveJob={resumeActiveJob}
           loadJobs={loadJobs}
-          recentJobs={recentJobs}
+          jobs={jobs}
+          jobsOffset={jobsOffset}
+          jobsPage={jobsPage}
+          jobsPageCount={jobsPageCount}
+          isLoadingJobs={isLoadingJobs}
           activeJobId={activeJobId}
           setActiveJobId={setActiveJobId}
           activeBatchesTotal={activeBatchesTotal}

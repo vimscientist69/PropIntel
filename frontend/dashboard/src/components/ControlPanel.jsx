@@ -101,7 +101,11 @@ export function ControlPanel({
   terminateActiveJob,
   resumeActiveJob,
   loadJobs,
-  recentJobs,
+  jobs,
+  jobsOffset,
+  jobsPage,
+  jobsPageCount,
+  isLoadingJobs,
   activeJobId,
   setActiveJobId,
   activeBatchesTotal,
@@ -127,6 +131,8 @@ export function ControlPanel({
 }) {
   const showPartial =
     activeJobStatus === "processing" || activeJobStatus === "uploaded";
+  const canGoPrev = jobsOffset > 0;
+  const canGoNext = jobsOffset + jobLimit < jobsTotal;
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 md:space-y-6">
@@ -260,6 +266,7 @@ export function ControlPanel({
               <button
                 type="button"
                 className={btnOutline}
+                disabled={!canGoPrev || isLoadingJobs}
                 onClick={() => setJobsOffset((v) => Math.max(0, v - jobLimit))}
               >
                 Prev
@@ -267,19 +274,24 @@ export function ControlPanel({
               <button
                 type="button"
                 className={btnOutline}
-                onClick={() =>
-                  setJobsOffset((v) => (v + jobLimit >= jobsTotal ? v : v + jobLimit))
-                }
+                disabled={!canGoNext || isLoadingJobs}
+                onClick={() => setJobsOffset((v) => v + jobLimit)}
               >
                 Next
               </button>
+              <span className="font-mono text-[10px] text-slate-500">
+                Page {jobsPage} / {jobsPageCount}
+              </span>
             </div>
 
             <div className="custom-scroll max-h-[320px] space-y-2 overflow-y-auto pr-1">
-              {recentJobs.length === 0 && (
+              {isLoadingJobs && jobs.length === 0 && (
+                <p className="py-6 text-center text-xs text-slate-500">Loading jobs…</p>
+              )}
+              {!isLoadingJobs && jobs.length === 0 && (
                 <p className="py-6 text-center text-xs text-slate-500">No jobs recorded yet.</p>
               )}
-              {recentJobs.map((job) => {
+              {jobs.map((job) => {
                 const selected = job.job_id === activeJobId;
                 return (
                   <button
