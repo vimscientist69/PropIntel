@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { AppShell } from "./components/AppShell";
+import { ControlPanel } from "./components/ControlPanel";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
@@ -345,265 +347,50 @@ export function App() {
   };
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-dot">P</div>
-          <div>
-            <div className="brand-title">PropIntel</div>
-            <div className="brand-subtitle">Dashboard Control Center</div>
-          </div>
-        </div>
-        <nav className="nav">
-          <button className={`nav-item ${activeTab === "control" ? "active" : ""}`} onClick={() => setActiveTab("control")}>
-            Control Panel
-          </button>
-          <button className={`nav-item ${activeTab === "analytics" ? "active" : ""}`} onClick={() => setActiveTab("analytics")}>
-            Analytics
-          </button>
-          <button className={`nav-item ${activeTab === "history" ? "active" : ""}`} onClick={() => setActiveTab("history")}>
-            Job History
-          </button>
-          <button className={`nav-item ${activeTab === "explorer" ? "active" : ""}`} onClick={() => setActiveTab("explorer")}>
-            Data Explorer
-          </button>
-          <button className={`nav-item ${activeTab === "settings" ? "active" : ""}`} onClick={() => setActiveTab("settings")}>
-            Engine Settings
-          </button>
-        </nav>
-      </aside>
-
-      <main className="main">
-        <header className="header">
-          <span className="status-chip">Live enrichment environment</span>
-          <h1>Dashboard Control Center</h1>
-          <p>Configure job input, monitor progress, and inspect enriched lead results.</p>
-        </header>
-
-        {activeTab === "control" && <section className="top-grid">
-          <div className="panel">
-            <div className="panel-head">
-              <div>
-                <h2>Main Control Panel</h2>
-                <p>Choose input format, upload dataset, and dispatch a new job.</p>
-                {(activeJobStatus === "processing" || activeJobStatus === "uploaded") && (
-                  <span className="status-chip partial-chip">Partial results available</span>
-                )}
-              </div>
-              <span className={`telemetry telemetry-${statusTone}`}>{isSubmitting ? "Running" : "Idle"}</span>
-            </div>
-            <div className="progress-wrap">
-              <div className={`progress-line ${statusTone}`}>
-                <div className="progress-started" style={{ width: `${startedPct}%` }} />
-                <div className="progress-completed" style={{ width: `${completedPct}%` }} />
-              </div>
-              <small>{activeJobMeta}</small>
-            </div>
-            <form className="control-form" onSubmit={onSubmit}>
-              <div className="form-grid">
-                <div className="field">
-                  <label htmlFor="input_format">Target input</label>
-                  <select id="input_format" name="input_format" defaultValue="csv">
-                    <option value="csv">CSV</option>
-                    <option value="json">JSON</option>
-                    <option value="propflux">PropFlux JSON</option>
-                  </select>
-                </div>
-                <div className="field">
-                  <label htmlFor="file">Dataset</label>
-                  <div className="file-picker">
-                    <input
-                      id="file"
-                      name="file"
-                      type="file"
-                      required
-                      onChange={(e) => setSelectedFileName(e.target.files?.[0]?.name || "No file selected")}
-                    />
-                    <label htmlFor="file" className="file-trigger">
-                      Choose file
-                    </label>
-                    <span className="file-name">{selectedFileName}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="actions-row">
-                <button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Running..." : "Run job"}
-                </button>
-                <button type="button" className="ghost" disabled={!canTerminate} onClick={terminateActiveJob}>
-                  Stop job
-                </button>
-                <button type="button" className="ghost" disabled={!canResume} onClick={resumeActiveJob}>
-                  Resume job
-                </button>
-                <button type="button" className="ghost" onClick={loadJobs}>
-                  Refresh jobs
-                </button>
-                <span className="muted">{uploadStatus}</span>
-              </div>
-            </form>
-          </div>
-
-          <div className="panel">
-            <div className="panel-head">
-              <div>
-                <h2>Recent Jobs</h2>
-                <p>Snapshot of the latest enrichment runs.</p>
-              </div>
-              <small className="muted">
-                {startIdx}-{endIdx} of {jobsTotal}
-              </small>
-            </div>
-            <div className="jobs-inline-controls">
-              <select
-                id="status"
-                value={jobsStatus}
-                onChange={(e) => {
-                  setJobsStatus(e.target.value);
-                  setJobsOffset(0);
-                }}
-              >
-                <option value="">all statuses</option>
-                <option value="uploaded">uploaded</option>
-                <option value="processing">processing</option>
-                <option value="completed">completed</option>
-                <option value="failed">failed</option>
-              </select>
-              <button type="button" className="ghost" onClick={() => setJobsOffset((v) => Math.max(0, v - JOB_LIMIT))}>
-                Prev
-              </button>
-              <button
-                type="button"
-                className="ghost"
-                onClick={() => setJobsOffset((v) => (v + JOB_LIMIT >= jobsTotal ? v : v + JOB_LIMIT))}
-              >
-                Next
-              </button>
-            </div>
-            <div className="job-list">
-              {recentJobs.length === 0 && <p className="muted">No jobs recorded yet.</p>}
-              {recentJobs.map((job) => (
-                <button
-                  type="button"
-                  key={job.job_id}
-                  className={`job-list-item ${job.job_id === activeJobId ? "active" : ""}`}
-                  onClick={() => setActiveJobId(job.job_id)}
-                >
-                  <span className="mono">{job.job_id.slice(0, 8)}</span>
-                  <span className={`pill pill-${job.status}`}>{job.status}</span>
-                  <span className="job-meta">
-                    {job.input_format || "-"}
-                    {job.job_id === activeJobId && activeBatchesTotal > 0
-                      ? ` · ${activeBatchesCompleted}/${activeBatchesTotal}`
-                      : ""}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>}
-
-        {activeTab === "control" && <section className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>Latest Listings</h2>
-              <p>Filtered lead intelligence grid for the selected job.</p>
-            </div>
-            <span className="mono panel-job-id">{activeJobId || "none selected"}</span>
-          </div>
-
-          <div className="filters">
-            <div className="field compact">
-              <label htmlFor="minScore">Min score</label>
-              <input
-                id="minScore"
-                type="number"
-                min="0"
-                max="100"
-                value={minScore}
-                onChange={(e) => setMinScore(e.target.value)}
-                placeholder="0"
-              />
-            </div>
-            <div className="field compact">
-              <label htmlFor="quality">Quality</label>
-              <select id="quality" value={qualityFilter} onChange={(e) => setQualityFilter(e.target.value)}>
-                <option value="">all quality</option>
-                <option value="verified">verified</option>
-                <option value="likely">likely</option>
-                <option value="low">low</option>
-              </select>
-            </div>
-            <div className="field compact">
-              <label htmlFor="chatbot">Chatbot</label>
-              <select id="chatbot" value={chatbotFilter} onChange={(e) => setChatbotFilter(e.target.value)}>
-                <option value="">all</option>
-                <option value="yes">has chatbot</option>
-                <option value="no">no chatbot</option>
-              </select>
-            </div>
-            <div className="field compact">
-              <label htmlFor="freshness">Freshness</label>
-              <select id="freshness" value={freshnessFilter} onChange={(e) => setFreshnessFilter(e.target.value)}>
-                <option value="">all</option>
-                <option value="detected">detected</option>
-                <option value="unknown">unknown</option>
-              </select>
-            </div>
-            <button type="button" onClick={() => openExport("json")} disabled={!activeJobId}>
-              Export JSON
-            </button>
-            <button type="button" onClick={() => openExport("csv")} disabled={!activeJobId}>
-              Export CSV
-            </button>
-          </div>
-
-          <div className="table-wrap">
-            <table className="latest-listings-table">
-              <thead>
-                <tr>
-                  <th className="col-listing">Listing</th>
-                  <th className="col-status">Status</th>
-                  <th className="col-website">Website</th>
-                  <th className="col-email">Email</th>
-                  <th className="col-phone">Phone</th>
-                  <th className="col-score">Score</th>
-                  <th className="col-reason">Reason</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLeads.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="empty-row">
-                      No lead rows yet. Select a completed job to inspect results.
-                    </td>
-                  </tr>
-                )}
-                {filteredLeads.map((lead, idx) => (
-                  <tr key={`${lead.company_name || "row"}-${idx}`}>
-                    <td className="col-listing">{lead.company_name || ""}</td>
-                    <td className="col-status">
-                      <span className={`pill pill-${lead.contact_quality || "unknown"}`}>
-                        {lead.contact_quality || "unknown"}
-                      </span>
-                    </td>
-                    <td className="cell-wrap website-cell col-website">{lead.website || ""}</td>
-                    <td className="cell-wrap email-cell col-email">{lead.email || ""}</td>
-                    <td className="cell-wrap phone-cell col-phone">{lead.phone || ""}</td>
-                    <td className="col-score">{lead.lead_score ?? ""}</td>
-                    <td className="cell-wrap reason-cell col-reason">{lead.lead_reason || ""}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <details className="rejected">
-            <summary>Rejected Rows</summary>
-            <pre>{JSON.stringify(rejectedRows, null, 2)}</pre>
-          </details>
-        </section>}
-
+    <AppShell activeTab={activeTab} onTabChange={setActiveTab}>
+      {activeTab === "control" ? (
+        <ControlPanel
+          activeJobStatus={activeJobStatus}
+          activeJobMeta={activeJobMeta}
+          statusTone={statusTone}
+          startedPct={startedPct}
+          completedPct={completedPct}
+          isSubmitting={isSubmitting}
+          onSubmit={onSubmit}
+          selectedFileName={selectedFileName}
+          setSelectedFileName={setSelectedFileName}
+          uploadStatus={uploadStatus}
+          canTerminate={canTerminate}
+          canResume={canResume}
+          terminateActiveJob={terminateActiveJob}
+          resumeActiveJob={resumeActiveJob}
+          loadJobs={loadJobs}
+          recentJobs={recentJobs}
+          activeJobId={activeJobId}
+          setActiveJobId={setActiveJobId}
+          activeBatchesTotal={activeBatchesTotal}
+          activeBatchesCompleted={activeBatchesCompleted}
+          jobsStatus={jobsStatus}
+          setJobsStatus={setJobsStatus}
+          setJobsOffset={setJobsOffset}
+          jobsTotal={jobsTotal}
+          startIdx={startIdx}
+          endIdx={endIdx}
+          filteredLeads={filteredLeads}
+          minScore={minScore}
+          setMinScore={setMinScore}
+          qualityFilter={qualityFilter}
+          setQualityFilter={setQualityFilter}
+          chatbotFilter={chatbotFilter}
+          setChatbotFilter={setChatbotFilter}
+          freshnessFilter={freshnessFilter}
+          setFreshnessFilter={setFreshnessFilter}
+          openExport={openExport}
+          rejectedRows={rejectedRows}
+          jobLimit={JOB_LIMIT}
+        />
+      ) : (
+        <div className="legacy-tab">
         {activeTab === "analytics" && (
           <section className="panel">
             <div className="panel-head">
@@ -868,7 +655,8 @@ export function App() {
             )}
           </section>
         )}
-      </main>
-    </div>
+        </div>
+      )}
+    </AppShell>
   );
 }
