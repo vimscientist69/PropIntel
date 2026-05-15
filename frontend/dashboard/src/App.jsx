@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Analytics } from "./components/Analytics";
 import { AppShell } from "./components/AppShell";
 import { ControlPanel } from "./components/ControlPanel";
 
@@ -49,6 +50,7 @@ export function App() {
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [analyticsRows, setAnalyticsRows] = useState([]);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsJobLimit, setAnalyticsJobLimit] = useState(10);
 
   useEffect(() => {
     loadJobs();
@@ -64,7 +66,7 @@ export function App() {
     if (activeTab === "analytics") {
       loadAnalyticsRows();
     }
-  }, [activeTab]);
+  }, [activeTab, analyticsJobLimit]);
 
   useEffect(() => {
     if (activeTab === "explorer" && explorerJobId) {
@@ -266,7 +268,7 @@ export function App() {
   const loadAnalyticsRows = async () => {
     try {
       setAnalyticsLoading(true);
-      const jobsPayload = await api(`/jobs?limit=10&offset=0&status=completed`);
+      const jobsPayload = await api(`/jobs?limit=${analyticsJobLimit}&offset=0&status=completed`);
       const completedIds = (jobsPayload.items || []).map((item) => item.job_id).filter(Boolean);
       if (completedIds.length === 0) {
         setAnalyticsRows([]);
@@ -389,56 +391,19 @@ export function App() {
           rejectedRows={rejectedRows}
           jobLimit={JOB_LIMIT}
         />
+      ) : activeTab === "analytics" ? (
+        <Analytics
+          analyticsRows={analyticsRows}
+          analyticsLoading={analyticsLoading}
+          jobsTotal={jobsTotal}
+          completedJobsCount={jobs.filter((j) => j.status === "completed").length}
+          jobLimit={analyticsJobLimit}
+          onJobLimitChange={setAnalyticsJobLimit}
+          onRefresh={loadAnalyticsRows}
+          rowCountLabel={`${analyticsRows.length} rows`}
+        />
       ) : (
         <div className="legacy-tab">
-        {activeTab === "analytics" && (
-          <section className="panel">
-            <div className="panel-head">
-              <div>
-                <h2>Analytics</h2>
-                <p>Pipeline quality and lead outcome overview from completed jobs.</p>
-              </div>
-              <button type="button" className="ghost" onClick={loadAnalyticsRows}>
-                Refresh analytics
-              </button>
-            </div>
-            {analyticsLoading && <p className="muted">Loading analytics...</p>}
-            <div className="top-grid">
-              <div className="panel">
-                <h3>Total Jobs</h3>
-                <p className="mono">{jobsTotal}</p>
-              </div>
-              <div className="panel">
-                <h3>Completed Jobs</h3>
-                <p className="mono">{jobs.filter((j) => j.status === "completed").length}</p>
-              </div>
-              <div className="panel">
-                <h3>Average Lead Score</h3>
-                <p className="mono">
-                  {analyticsRows.length
-                    ? Math.round(
-                        analyticsRows.reduce((acc, row) => acc + Number(row.lead_score || 0), 0) /
-                          analyticsRows.length,
-                      )
-                    : 0}
-                </p>
-              </div>
-              <div className="panel">
-                <h3>Verified Contact Rate</h3>
-                <p className="mono">
-                  {analyticsRows.length
-                    ? `${Math.round(
-                        (analyticsRows.filter((row) => row.contact_quality === "verified").length /
-                          analyticsRows.length) *
-                          100,
-                      )}%`
-                    : "0%"}
-                </p>
-              </div>
-            </div>
-          </section>
-        )}
-
         {activeTab === "history" && (
           <section className="panel">
             <div className="panel-head">
